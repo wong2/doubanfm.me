@@ -10,10 +10,9 @@
 
         this.config = {
             base_url : 'http://douban.fm/mine?type=liked&start=',
+            index_url: 'http://douban.fm',
             page_size: 15
         };
-
-        this.songs = [];
 
         this.init();
     }
@@ -27,8 +26,14 @@
                 blocked_song_count : this._extractNumber(navigation_list[1].innerHTML),
                 listened_song_count: this._extractNumber(navigation_list[2].innerHTML)
             };
+            this.data.songs = [];
 
-            this.start();
+            var self = this;
+            $.get(this.config.index_url, function(html){
+                var uid = parseInt(html.match(/uid:\s*\'(\d+)\'/)[1]);
+                self.data.uid = uid;
+                self.start();
+            });
         },
         _extractNumber: function(str) {
             return parseInt(str.match(/(\d+)/)[0], 10);
@@ -38,7 +43,7 @@
 
             this.crawl(current_page, function(song_infos){
                 song_infos.each(function(index, song){
-                    this.songs.push(song);
+                    this.data.songs.push(song);
                 }.bind(this));
                 current_page += 1;
                 console.log('crawling page', current_page);
@@ -74,8 +79,20 @@
         },
         send: function() {
             var data = this.data;
-            data.songs = this.songs;
             console.log(data);
+
+            $.ajax({
+                type: 'POST',
+                url: 'https://doubanfm.me/collect',
+                crossDomain: true,
+                data: data,
+                dataType: 'json',
+                success: function(response) {
+                },
+                error: function (response) {
+                    alert('POST failed.');
+                }
+            });
         }
     };
 
