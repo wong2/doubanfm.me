@@ -11,6 +11,7 @@
         this.config = {
             base_url : 'http://douban.fm/mine?type=liked&start=',
             index_url: 'http://douban.fm',
+            collect_url: 'http://doubanfm.me/collect',
             page_size: 15
         };
 
@@ -30,8 +31,8 @@
 
             var self = this;
             $.get(this.config.index_url, function(html){
-                var uid = parseInt(html.match(/uid:\s*\'(\d+)\'/)[1]);
-                self.data.uid = uid;
+                var id = html.match(/uid:\s*\'(\d+)\'/)[1];
+                self.data.id = id;
                 self.start();
             });
         },
@@ -83,11 +84,12 @@
 
             $.ajax({
                 type: 'POST',
-                url: 'https://doubanfm.me/collect',
+                url: this.config.collect_url,
                 crossDomain: true,
-                data: data,
+                data: { 'data': JSON.stringify(data) },
                 dataType: 'json',
                 success: function(response) {
+                    alert(response.uid);
                 },
                 error: function (response) {
                     alert('POST failed.');
