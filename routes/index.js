@@ -39,5 +39,20 @@ exports.collect = function(req, res){
 
 exports.show = function(req, res){
   var uid = req.params.uid;
-  res.json({'uid':uid});
+  mongo.connect('mongodb://localhost:27017/doubanfm', function(err, db){
+    if (err) {
+      res.json({ error:1, msg: 'can not connect to mongodb'});
+      return;
+    }
+    var collection = db.collection('data');
+    collection.findOne({uid:uid}, function(err, item){
+      if (err) {
+        res.json({ error:1, msg: 'error find user' });
+        return;
+      }
+      return res.json(item);
+    });
+
+
+  });
 };
