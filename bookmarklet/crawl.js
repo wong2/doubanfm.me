@@ -74,6 +74,8 @@
                         album_name: el.find('.source a').text()
                     };
                 });
+
+                dom = null;
                 
                 callback.call(self, song_infos);
             });
