@@ -89,7 +89,11 @@
                 data: { 'data': JSON.stringify(data) },
                 dataType: 'json',
                 success: function(response) {
-                    alert(response.uid);
+                    if (response.error) {
+                        alert(response.msg);
+                    } else {
+                        alert(response.uid);
+                    }
                 },
                 error: function (response) {
                     alert('POST failed.');
