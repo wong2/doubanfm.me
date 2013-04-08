@@ -1,5 +1,9 @@
-mongo = require('mongodb').MongoClient
+mongodb = require 'mongodb'
+async = require 'async'
+_ = require 'underscore'
+music = require './music'
 
+mongo = mongodb.MongoClient
 stats_collection = raw_data_collection = null
 
 connectMongo = (callback) ->
@@ -18,8 +22,25 @@ exports.process = (job, done) ->
   else
     process(job, done)
 
+# get tags of musics the user likes
+get_tags = (album_ids, callback) ->
+  async.map album_ids, music.tags, (err, results) ->
+    tags = {}
+    for result in results
+      console.log result
+      for tag in result.tags
+        tag_title = tag.title
+        tags[tag_title] = 0 if tag_title not of tags
+        tags[tag_title] += tag.count
+          
+    callback null, tags
+
 process = (job, done) ->
   console.log job.data
   raw_data_collection.findOne id:job.data.id, (err, item) ->
     job.log 'processing %s(%s), who has %s liked songs', item.uid, item.id, item.liked_song_count
-    setTimeout done, 10*1000
+
+    album_ids = _.pluck item.songs, 'album_id'
+    get_tags album_ids, (error, tags) ->
+      console.log tags
+      done()
