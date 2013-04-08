@@ -1,7 +1,7 @@
 mongodb = require 'mongodb'
 async = require 'async'
 _ = require 'underscore'
-music = require './music'
+douban = require '../lib/douban'
 
 mongo = mongodb.MongoClient
 stats_collection = raw_data_collection = null
@@ -24,7 +24,7 @@ exports.process = (job, done) ->
 
 # get tags of musics the user likes
 get_tags = (album_ids, callback) ->
-  async.map album_ids, music.tags, (err, results) ->
+  async.map album_ids, douban.music_tags, (err, results) ->
     tags = {}
     for result in results
       console.log result
@@ -41,6 +41,7 @@ process = (job, done) ->
     job.log 'processing %s(%s), who has %s liked songs', item.uid, item.id, item.liked_song_count
 
     album_ids = _.pluck item.songs, 'album_id'
+    album_ids = _.without album_ids, null # remove null ids
     get_tags album_ids, (error, tags) ->
       console.log tags
       done()

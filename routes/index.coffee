@@ -2,6 +2,7 @@ request = require 'request'
 mongodb = require 'mongodb'
 _ = require 'underscore'
 kue = require 'kue'
+douban = require '../lib/douban'
 
 jobs = kue.createQueue()
 
@@ -20,9 +21,9 @@ exports.index = (req, res) ->
 
 exports.collect = (req, res) ->
   data = JSON.parse req.body.data
-  request "https://api.douban.com/v2/user/#{data.id}", (error, response, body) ->
-    user_info = JSON.parse body
-    if user_info.code
+  douban.user_info data.id, (error, user_info) ->
+    console.log user_info
+    if error
       return res.json error: 1, msg: 'can not fetch user info'
 
     _.extend data, user_info
