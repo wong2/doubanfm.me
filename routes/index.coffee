@@ -1,10 +1,11 @@
 request = require 'request'
+mongodb = require 'mongodb'
 _ = require 'underscore'
-mongo = require('mongodb').MongoClient
 kue = require 'kue'
 
 jobs = kue.createQueue()
 
+mongo = mongodb.MongoClient
 raw_data_collection = null
 
 mongo.connect 'mongodb://localhost:27017/doubanfm', (err, db) ->
@@ -31,7 +32,6 @@ exports.collect = (req, res) ->
       if err
         return res.json error: 1, msg:'can not insert data to mongodb'
 
-      console.log result
       # create a new job
       job = jobs.create 'stats', {
         title: data.uid
