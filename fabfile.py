@@ -26,3 +26,6 @@ def all():
 
 def coffee():
     local('coffee -cw routes/index.coffee & coffee -cw jobs/stats.coffee')
+
+def job():
+    local('node jobs/index.js')
