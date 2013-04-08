@@ -66,13 +66,19 @@
 
                 var song_infos = info_wrappers.map(function(){
                     var el = $(this);
-                    return {
+                    var song_info = {
                         album_url: el.find('.icon').attr('href'),
                         album_cover_image: el.find('img').attr('src'),
                         song_name: el.find('.song_title').text(),
                         performer: el.find('.performer').text(),
                         album_name: el.find('.source a').text()
                     };
+                    try {
+                        song_info.album_id = song_info.album_url.match(/(\d+)/)[0];
+                    } catch(e) {
+                        song_info.album_id = null;
+                    }
+                    return song_info;
                 });
 
                 dom = null;
