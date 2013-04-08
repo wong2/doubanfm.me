@@ -1,9 +1,8 @@
 from fabric.api import *
-from os.path import expanduser
 
 env.hosts = ['root@vps']
 
-code_dir = expanduser('~') + '/codes/doubanfm.me'
+code_dir = '/root/codes/doubanfm.me'
 
 def push():
     local('git push')
