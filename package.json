@@ -12,6 +12,7 @@
     "mongodb": ">=1.0",
     "underscore": ">=1.0",
     "kue": "*",
-    "async": "*"
+    "async": "*",
+    "cheerio": "*"
   }
 }
