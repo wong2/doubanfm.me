@@ -38,20 +38,22 @@
   };
 
   get_tags = function(album_ids, callback) {
-    return async.map(album_ids, douban.music_tags, function(err, results) {
-      var result, tag, tag_title, tags, _i, _j, _len, _len1, _ref;
+    var parallel_req_limit;
+    parallel_req_limit = 5;
+    return async.mapLimit(album_ids, parallel_req_limit, douban.music_tags, function(err, results) {
+      var count, result, tag, tags, _i, _j, _len, _len1;
       tags = {};
       for (_i = 0, _len = results.length; _i < _len; _i++) {
         result = results[_i];
-        console.log(result);
-        _ref = result.tags;
-        for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
-          tag = _ref[_j];
-          tag_title = tag.title;
-          if (!(tag_title in tags)) {
-            tags[tag_title] = 0;
-          }
-          tags[tag_title] += tag.count;
+        for (_j = 0, _len1 = result.length; _j < _len1; _j++) {
+          tag = result[_j];
+          tags[tag] = (tags[tag] || 0) + 1;
+        }
+      }
+      for (tag in tags) {
+        count = tags[tag];
+        if (count <= 1) {
+          delete tags[tag];
         }
       }
       return callback(null, tags);
@@ -65,8 +67,7 @@
     }, function(err, item) {
       var album_ids;
       job.log('processing %s(%s), who has %s liked songs', item.uid, item.id, item.liked_song_count);
-      album_ids = _.pluck(item.songs, 'album_id');
-      album_ids = _.without(album_ids, null);
+      album_ids = _.compact(_.pluck(item.songs, 'album_id'));
       return get_tags(album_ids, function(error, tags) {
         console.log(tags);
         return done();

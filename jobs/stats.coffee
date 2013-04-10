@@ -24,15 +24,15 @@ exports.process = (job, done) ->
 
 # get tags of musics the user likes
 get_tags = (album_ids, callback) ->
-  async.map album_ids, douban.music_tags, (err, results) ->
+  parallel_req_limit = 5
+  async.mapLimit album_ids, parallel_req_limit, douban.music_tags, (err, results) ->
     tags = {}
     for result in results
-      console.log result
-      for tag in result.tags
-        tag_title = tag.title
-        tags[tag_title] = 0 if tag_title not of tags
-        tags[tag_title] += tag.count
-          
+      for tag in result
+        tags[tag] = (tags[tag] or 0) + 1
+
+    delete tags[tag] for tag, count of tags when count <= 1
+      
     callback null, tags
 
 process = (job, done) ->
@@ -40,8 +40,7 @@ process = (job, done) ->
   raw_data_collection.findOne id:job.data.id, (err, item) ->
     job.log 'processing %s(%s), who has %s liked songs', item.uid, item.id, item.liked_song_count
 
-    album_ids = _.pluck item.songs, 'album_id'
-    album_ids = _.without album_ids, null # remove null ids
+    album_ids = _.compact _.pluck item.songs, 'album_id'
     get_tags album_ids, (error, tags) ->
       console.log tags
       done()
