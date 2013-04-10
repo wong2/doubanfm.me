@@ -12,6 +12,9 @@ def rpull():
     with cd(code_dir):
         run('git pull')
 
+def lstart():
+    local('forever start app.js')
+
 def restart():
     run('forever restart app.js')
 
