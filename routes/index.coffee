@@ -1,20 +1,12 @@
-request = require 'request'
-mongodb = require 'mongodb'
 _ = require 'underscore'
+request = require 'request'
+mongo = require 'mongoskin'
 kue = require 'kue'
 douban = require '../lib/douban'
+config = require '../config'
 
+db = mongo.db config.mongo.server
 jobs = kue.createQueue()
-
-mongo = mongodb.MongoClient
-raw_data_collection = null
-
-mongo.connect 'mongodb://localhost:27017/doubanfm', (err, db) ->
-  if not err
-    console.log 'Connected to mongodb'
-    raw_data_collection = db.collection 'raw_data'
-  else
-    console.log 'Error connecting mongodb'
 
 exports.index = (req, res) ->
   res.render 'index', title:'hello'
@@ -29,7 +21,7 @@ exports.collect = (req, res) ->
     _.extend data, user_info
 
     # store the raw data to mongodb
-    raw_data_collection.update {id:data.id}, data, {w:1,upsert:true}, (err, result) ->
+    db.collection('raw_data').update {id:data.id}, data, {w:1,upsert:true}, (err, result) ->
       if err
         return res.json error: 1, msg:'can not insert data to mongodb'
 
@@ -46,7 +38,7 @@ exports.collect = (req, res) ->
 
 exports.show = (req, res) ->
   uid = req.params.uid
-  raw_data_collection.findOne uid:uid, (err, item) ->
+  db.collection('raw_data').findOne uid:uid, (err, item) ->
     if err
       return res.json error: 1, msg: 'error find user'
     res.json item

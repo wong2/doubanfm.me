@@ -9,10 +9,12 @@
     "express": "3.1.0",
     "jade": "*",
     "request": "*",
-    "mongodb": ">=1.0",
+    "mongoskin": "*",
     "underscore": ">=1.0",
     "kue": "*",
     "async": "*",
-    "cheerio": "*"
+    "cheerio": "*",
+    "redis": "*",
+    "hiredis": "*"
   }
 }
