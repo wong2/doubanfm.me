@@ -4,6 +4,10 @@ from album import DoubanAlbum
 from flask import Flask
 import json
 
+from gevent import monkey
+monkey.patch_all()
+
+
 app = Flask(__name__)
 
 @app.route('/album/')
@@ -19,7 +23,4 @@ def get_album_info(album_id):
     })
 
 if __name__ == '__main__':
-    from gevent import monkey
-    monkey.patch_all()
-
     app.run(debug=True)
