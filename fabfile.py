@@ -17,6 +17,7 @@ def lstart():
 
 def restart():
     run('forever restart app.js')
+    run('supervisorctl restart all')
 
 def deploy():
     rpull()
