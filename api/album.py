@@ -22,17 +22,27 @@ class DoubanAlbum:
 
     def get_songs(self):
         self.songs = self.extract_song_list()
-        self.fetch_song_mp3_url()
+        try:
+            self.fetch_song_mp3_url()
+        except KeyError:
+            pass
         return self.songs
 
     def extract_song_list(self):
         song_item_li_s = self.dom('.song-item')
+
+        # no more song infos, just names
+        if not song_item_li_s:
+            text = self.dom('.related_info .indent')[1].text_content()
+            import re
+            words = [word for word in re.split('(\d+)\.', text) if word]
+            return [{'name': song_name} for song_name in words[1::2]]
+
         return [{
                     'sid': song_item_li.get('id'),
                     'ssid': song_item_li.get('data-ssid'),
                     'name': song_item_li.find_class('song-name')[0].get('data-title')
                 } for song_item_li in song_item_li_s]
-
 
     def fetch_song_mp3_url(self):
         url_format = 'http://music.douban.com/j/songlist/get_song_url?sid={sid}&ssid={ssid}'
@@ -44,5 +54,5 @@ class DoubanAlbum:
 
             
 if __name__ == '__main__':
-    album = DoubanAlbum(1394742)
+    album = DoubanAlbum(5369939)
     print album.get_songs()
